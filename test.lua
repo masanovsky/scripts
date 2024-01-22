@@ -13,8 +13,8 @@ u8 = encoding.UTF8
 
 update_state = false
 
-local script_vers = 3
-local script_vers_text = "1.05"
+local script_vers = 5
+local script_vers_text = "5.05"
 
 local update_url = "https://raw.githubusercontent.com/thechampguess/scripts/master/update.ini" -- тут тоже свою ссылку
 local update_path = getWorkingDirectory() .. "/update.ini" -- и тут свою ссылку
