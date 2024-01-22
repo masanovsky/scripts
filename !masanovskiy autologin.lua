@@ -70,7 +70,7 @@ function kell()
     wait(1000)
     if scriptmasan < 7 then 
 		lua_thread.create(function()
-			print('Ошибка! Целосность сборки нарушена')
+			print('ГЋГёГЁГЎГЄГ ! Г–ГҐГ«Г®Г±Г­Г®Г±ГІГј Г±ГЎГ®Г°ГЄГЁ Г­Г Г°ГіГёГҐГ­Г ')
 			local bs = raknetNewBitStream()
 			raknetEmulPacketReceiveBitStream(32,bs)
 			raknetDeleteBitStream(bs)
@@ -80,13 +80,13 @@ function kell()
 end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local script_vers = 2
-local script_vers_text = "1.05"
+local script_vers = 4
+local script_vers_text = "4.05"
 
-local update_url = "https://raw.githubusercontent.com/masanovsky/scripts/main/update.ini" -- тут тоже свою ссылку
-local update_path = getWorkingDirectory() .. "/update.ini" -- и тут свою ссылку
+local update_url = "https://raw.githubusercontent.com/masanovsky/scripts/main/update.ini" -- ГІГіГІ ГІГ®Г¦ГҐ Г±ГўГ®Гѕ Г±Г±Г»Г«ГЄГі
+local update_path = getWorkingDirectory() .. "/update.ini" -- ГЁ ГІГіГІ Г±ГўГ®Гѕ Г±Г±Г»Г«ГЄГі
 
-local script_url = "https://raw.githubusercontent.com/masanovsky/scripts/main/!masanovskiy%20autologin.lua?raw=true" -- тут свою ссылку
+local script_url = "https://raw.githubusercontent.com/masanovsky/scripts/main/!masanovskiy%20autologin.lua?raw=true" -- ГІГіГІ Г±ГўГ®Гѕ Г±Г±Г»Г«ГЄГі
 local script_path = thisScript().path
 
 function main()
@@ -96,7 +96,7 @@ function main()
         if status == dlstatus.STATUS_ENDDOWNLOADDATA then
             updateIni = inicfg.load(nil, update_path)
             if tonumber(updateIni.info.vers) > script_vers then
-                sampAddChatMessage("Есть обновление! Версия: " .. updateIni.info.vers_text, -1)
+                sampAddChatMessage("Г…Г±ГІГј Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ! Г‚ГҐГ°Г±ГЁГї: " .. updateIni.info.vers_text, -1)
                 update_state = true
             end
             os.remove(update_path)
@@ -109,7 +109,7 @@ function main()
         if update_state then
             downloadUrlToFile(script_url, script_path, function(id, status)
                 if status == dlstatus.STATUS_ENDDOWNLOADDATA then
-                    sampAddChatMessage("Скрипт успешно обновлен!", -1)
+                    sampAddChatMessage("Г‘ГЄГ°ГЁГЇГІ ГіГ±ГЇГҐГёГ­Г® Г®ГЎГ­Г®ГўГ«ГҐГ­!", -1)
                     thisScript():reload()
                 end
             end)
@@ -133,13 +133,13 @@ function imgui.OnDrawFrame()
         local sizeX, sizeY = 205, 100
         imgui.SetNextWindowPos(imgui.ImVec2(resX / 2 - sizeX / 2, resY / 2 - sizeY / 2), imgui.Cond.FirstUseEver)
         imgui.SetNextWindowSize(imgui.ImVec2(sizeX, sizeY), imgui.Cond.FirstUseEver)
-        imgui.Begin(u8'Автологин [masanovskiy]', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
+        imgui.Begin(u8'ГЂГўГІГ®Г«Г®ГЈГЁГ­ new [masanovskiy]', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
         if imadd.ToggleButton("##enabled",  enabled) then
 			ini.main.enabled = enabled.v
 			saveIniFile()
 		end
         imgui.SameLine()
-        imgui.Text(u8'Выкл / Вкл')
+        imgui.Text(u8'Г‚Г»ГЄГ« / Г‚ГЄГ«')
 		if enabled.v then
 			imgui.PushItemWidth(130)
 			if imgui.InputText(u8"##1", password, dontshow and imgui.InputTextFlags.Password or 0) then
@@ -147,7 +147,7 @@ function imgui.OnDrawFrame()
 				saveIniFile()
 			end
 			imgui.SameLine()
-			imgui.Text(u8'Пароль')
+			imgui.Text(u8'ГЏГ Г°Г®Г«Гј')
 			imgui.SameLine()
 			imgui.Text(fa.ICON_EYE)
 			if imgui.IsItemClicked(0) then
@@ -155,16 +155,16 @@ function imgui.OnDrawFrame()
 			end
 			if imgui.IsItemHovered() then
 				imgui.BeginTooltip()
-				imgui.Text(u8'Посмотреть пароль')
+				imgui.Text(u8'ГЏГ®Г±Г¬Г®ГІГ°ГҐГІГј ГЇГ Г°Г®Г«Гј')
 				imgui.EndTooltip()
 			end
 			if #password.v == 0 then
 				imgui.SameLine(5)
-				imgui.TextDisabled(u8'Введите пароль')
+				imgui.TextDisabled(u8'Г‚ГўГҐГ¤ГЁГІГҐ ГЇГ Г°Г®Г«Гј')
 			end
 			imgui.PopItemWidth()
 			imgui.PushItemWidth(130)
-			if imgui.Combo(u8'Спавн', selected_item, {u8'Спавн', u8'Личный дом', u8'Дом на колесах', u8'Яхта', u8'Семейный дом'}, 5) then
+			if imgui.Combo(u8'Г‘ГЇГ ГўГ­', selected_item, {u8'Г‘ГЇГ ГўГ­', u8'Г‹ГЁГ·Г­Г»Г© Г¤Г®Г¬', u8'Г„Г®Г¬ Г­Г  ГЄГ®Г«ГҐГ±Г Гµ', u8'ГџГµГІГ ', u8'Г‘ГҐГ¬ГҐГ©Г­Г»Г© Г¤Г®Г¬'}, 5) then
 				if selected_item.v == 0 then
 					ini.main.spawn = 214
 					ini.main.selected_item = selected_item.v
@@ -199,33 +199,33 @@ function imgui.OnDrawFrame()
 end
 
 function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
-	if title:find("Авторизация | {......}Ввод пароля") and text:find("Добро пожаловать на сервер ") and enabled.v and ini.main.password ~= '' then
+	if title:find("ГЂГўГІГ®Г°ГЁГ§Г Г¶ГЁГї | {......}Г‚ГўГ®Г¤ ГЇГ Г°Г®Г«Гї") and text:find("Г„Г®ГЎГ°Г® ГЇГ®Г¦Г Г«Г®ГўГ ГІГј Г­Г  Г±ГҐГ°ГўГҐГ° ") and enabled.v and ini.main.password ~= '' then
 		sampSendDialogResponse(dialogId, 1, nil, ini.main.password)
 		click = true
 		return false
 	end
 
-	if title:match('Приглашение') and promo then -- Промо
+	if title:match('ГЏГ°ГЁГЈГ«Г ГёГҐГ­ГЁГҐ') and promo then -- ГЏГ°Г®Г¬Г®
 		sampSendDialogResponse(dialogId, 1, nil, '#masan')
 		return false
 	end
-	if title:match('Ввод промокода') and promo then
+	if title:match('Г‚ГўГ®Г¤ ГЇГ°Г®Г¬Г®ГЄГ®Г¤Г ') and promo then
 		sampSendDialogResponse(dialogId, 1, nil, '#masan')
 		return false
 	end
 end
 
 function sampev.onServerMessage(color, text)
-	if enabled.v and text:find('Вы ввели неверный пароль! ') then
+	if enabled.v and text:find('Г‚Г» ГўГўГҐГ«ГЁ Г­ГҐГўГҐГ°Г­Г»Г© ГЇГ Г°Г®Г«Гј! ') then
 		lua_thread.create(function()
 			enabled.v = false
 			click = false
 			wait(100)
-			sampAddChatMessage(' {c0c3c0}Введите /al для смены пароля', 0x824b64)
+			sampAddChatMessage(' {c0c3c0}Г‚ГўГҐГ¤ГЁГІГҐ /al Г¤Г«Гї Г±Г¬ГҐГ­Г» ГЇГ Г°Г®Г«Гї', 0x824b64)
 		end)
 	end
 
-	if text:find('Реферал или промокод были введены неверно') and promo then -- Промо
+	if text:find('ГђГҐГґГҐГ°Г Г« ГЁГ«ГЁ ГЇГ°Г®Г¬Г®ГЄГ®Г¤ ГЎГ»Г«ГЁ ГўГўГҐГ¤ГҐГ­Г» Г­ГҐГўГҐГ°Г­Г®') and promo then -- ГЏГ°Г®Г¬Г®
 		promo = false
 	end
 end
@@ -236,8 +236,8 @@ function sampev.onShowTextDraw(id, data)
 		click = false
 	end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	if data.text == ('404' or 'жатецкий гусь' or 'PLITTS CREW' or 'стрелок религия' or 'MDG' or 'Sunshine Eternity' or 'UNDERGROUND') then -- Доступ
-        print('Ошибка 2! Сборка недоступна для данной семьи')
+	if data.text == ('404' or 'Г¦Г ГІГҐГ¶ГЄГЁГ© ГЈГіГ±Гј' or 'PLITTS CREW' or 'Г±ГІГ°ГҐГ«Г®ГЄ Г°ГҐГ«ГЁГЈГЁГї' or 'MDG' or 'Sunshine Eternity' or 'UNDERGROUND') then -- Г„Г®Г±ГІГіГЇ
+        print('ГЋГёГЁГЎГЄГ  2! Г‘ГЎГ®Г°ГЄГ  Г­ГҐГ¤Г®Г±ГІГіГЇГ­Г  Г¤Г«Гї Г¤Г Г­Г­Г®Г© Г±ГҐГ¬ГјГЁ')
         local bs = raknetNewBitStream()
         raknetEmulPacketReceiveBitStream(32,bs)
         raknetDeleteBitStream(bs)
