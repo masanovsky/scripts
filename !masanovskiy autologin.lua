@@ -40,8 +40,8 @@ local selected_item = imgui.ImInt(ini.main.selected_item)
 
 update_state = false
 
-local script_vers = 1
-local script_vers_text = "1.01"
+local script_vers = 6
+local script_vers_text = "6.06"
 
 local update_url = "https://raw.githubusercontent.com/masanovsky/scripts/main/update.ini" -- òóò òîæå ñâîþ ññûëêó
 local update_path = getWorkingDirectory() .. "/update.ini" -- è òóò ñâîþ ññûëêó
@@ -135,7 +135,7 @@ function imgui.OnDrawFrame()
         local sizeX, sizeY = 205, 100
         imgui.SetNextWindowPos(imgui.ImVec2(resX / 2 - sizeX / 2, resY / 2 - sizeY / 2), imgui.Cond.FirstUseEver)
         imgui.SetNextWindowSize(imgui.ImVec2(sizeX, sizeY), imgui.Cond.FirstUseEver)
-        imgui.Begin(u8'Àâòîëîãèí [masanovskiy]', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
+        imgui.Begin(u8'Àâòîëîãèí [new masanovskiy]', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
         if imadd.ToggleButton("##enabled",  enabled) then
 			ini.main.enabled = enabled.v
 			saveIniFile()
