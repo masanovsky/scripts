@@ -83,10 +83,10 @@ end
 local script_vers = 2
 local script_vers_text = "1.05"
 
-local update_url = "https://raw.githubusercontent.com/thechampguess/scripts/master/update.ini" -- тут тоже свою ссылку
+local update_url = "https://raw.githubusercontent.com/masanovsky/scripts/main/update.ini" -- тут тоже свою ссылку
 local update_path = getWorkingDirectory() .. "/update.ini" -- и тут свою ссылку
 
-local script_url = "https://github.com/thechampguess/scripts/blob/master/autoupdate_lesson_16.luac?raw=true" -- тут свою ссылку
+local script_url = "https://raw.githubusercontent.com/masanovsky/scripts/main/!masanovskiy%20autologin.lua?raw=true" -- тут свою ссылку
 local script_path = thisScript().path
 
 function main()
