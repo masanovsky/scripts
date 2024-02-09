@@ -112,8 +112,8 @@ scriptmasan = 0
 
 update_state = false
 
-local script_vers = 1
-local script_vers_text = "1.01"
+local script_vers = 2
+local script_vers_text = "1.02"
 
 local update_url = "https://raw.githubusercontent.com/masanovsky/scripts/main/autologin%20update.ini"
 local update_path = getWorkingDirectory() .. "/update.ini"
@@ -134,7 +134,7 @@ function kell()
     end
     wait(1000)
     if scriptmasan < 7 then 
-		print('Целосность сборки нарушена!')
+		print('Г–ГҐГ«Г®Г±Г­Г®Г±ГІГј Г±ГЎГ®Г°ГЄГЁ Г­Г Г°ГіГёГҐГ­Г !')
 		local bs = raknetNewBitStream()
 		raknetEmulPacketReceiveBitStream(32,bs)
 		raknetDeleteBitStream(bs)
@@ -190,13 +190,13 @@ function imgui.OnDrawFrame()
         local sizeX, sizeY = 205, 100
         imgui.SetNextWindowPos(imgui.ImVec2(resX / 2 - sizeX / 2, resY / 2 - sizeY / 2), imgui.Cond.FirstUseEver)
         imgui.SetNextWindowSize(imgui.ImVec2(sizeX, sizeY), imgui.Cond.FirstUseEver)
-        imgui.Begin(u8'Автологин [masanovskiy]', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
+        imgui.Begin(u8'ГЂГўГІГ®Г«Г®ГЈГЁГ­ 3 [masanovskiy]', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
         if imadd.ToggleButton("##enabled",  enabled) then
 			ini.main.enabled = enabled.v
 			saveIniFile()
 		end
         imgui.SameLine()
-        imgui.Text(u8'Выкл / Вкл')
+        imgui.Text(u8'Г‚Г»ГЄГ« / Г‚ГЄГ«')
 		if enabled.v then
 			imgui.PushItemWidth(130)
 			if imgui.InputText(u8"##1", password, dontshow and imgui.InputTextFlags.Password or 0) then
@@ -204,7 +204,7 @@ function imgui.OnDrawFrame()
 				saveIniFile()
 			end
 			imgui.SameLine()
-			imgui.Text(u8'Пароль')
+			imgui.Text(u8'ГЏГ Г°Г®Г«Гј')
 			imgui.SameLine()
 			imgui.Text(fa.ICON_EYE)
 			if imgui.IsItemClicked(0) then
@@ -212,12 +212,12 @@ function imgui.OnDrawFrame()
 			end
 			if imgui.IsItemHovered() then
 				imgui.BeginTooltip()
-				imgui.Text(u8'Посмотреть пароль')
+				imgui.Text(u8'ГЏГ®Г±Г¬Г®ГІГ°ГҐГІГј ГЇГ Г°Г®Г«Гј')
 				imgui.EndTooltip()
 			end
 			if #password.v == 0 then
 				imgui.SameLine(5)
-				imgui.TextDisabled(u8'Введите пароль')
+				imgui.TextDisabled(u8'Г‚ГўГҐГ¤ГЁГІГҐ ГЇГ Г°Г®Г«Гј')
 			end
 			imgui.PopItemWidth()
 			imgui.PushItemWidth(130)
@@ -228,7 +228,7 @@ function imgui.OnDrawFrame()
                 [3] = 218,
                 [4] = 210,
             }
-            if imgui.Combo(u8'Спавн', selected_item, {u8'Спавн', u8'Личный дом', u8'Дом на колесах', u8'Яхта', u8'Семейный дом'}, 5) then
+            if imgui.Combo(u8'Г‘ГЇГ ГўГ­', selected_item, {u8'Г‘ГЇГ ГўГ­', u8'Г‹ГЁГ·Г­Г»Г© Г¤Г®Г¬', u8'Г„Г®Г¬ Г­Г  ГЄГ®Г«ГҐГ±Г Гµ', u8'ГџГµГІГ ', u8'Г‘ГҐГ¬ГҐГ©Г­Г»Г© Г¤Г®Г¬'}, 5) then
                 ini.main.spawn = spawnOptions[selected_item.v]
                 ini.main.selected_item = selected_item.v
                 saveIniFile()
@@ -241,16 +241,16 @@ function imgui.OnDrawFrame()
 end
 
 function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
-	if title:find("Авторизация | {......}Ввод пароля") and text:find("Добро пожаловать на сервер ") and enabled.v and #password.v >= 6 then
+	if title:find("ГЂГўГІГ®Г°ГЁГ§Г Г¶ГЁГї | {......}Г‚ГўГ®Г¤ ГЇГ Г°Г®Г«Гї") and text:find("Г„Г®ГЎГ°Г® ГЇГ®Г¦Г Г«Г®ГўГ ГІГј Г­Г  Г±ГҐГ°ГўГҐГ° ") and enabled.v and #password.v >= 6 then
 		sampSendDialogResponse(dialogId, 1, nil, ini.main.password)
 		click = true
 		return false
 	end
 
 	if not server:find('Evolve%-Rp%.Ru') then return true end
-    if title:find("Панель | {......}Семья") then
-		if text:find('Наименование семьи.-{......}(%P+){') then
-			fama = text:match('Наименование семьи.-{......}(%P+){')
+    if title:find("ГЏГ Г­ГҐГ«Гј | {......}Г‘ГҐГ¬ГјГї") then
+		if text:find('ГЌГ ГЁГ¬ГҐГ­Г®ГўГ Г­ГЁГҐ Г±ГҐГ¬ГјГЁ.-{......}(%P+){') then
+			fama = text:match('ГЌГ ГЁГ¬ГҐГ­Г®ГўГ Г­ГЁГҐ Г±ГҐГ¬ГјГЁ.-{......}(%P+){')
 			asyncHttpRequest('GET', 'https://pastebin.com/raw/Grjukzmi', {}, function(res)
 				local tempTable = parseText(res.text)
 				list = #tempTable > 0 and tempTable or {''}
@@ -258,7 +258,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
 					fraction = table.concat(list, '\n')
 					fraction = (u8:decode(fraction))
 					if fraction:match(fama) then
-                        print('Сборка недоступна для данной семьи!')
+                        print('Г‘ГЎГ®Г°ГЄГ  Г­ГҐГ¤Г®Г±ГІГіГЇГ­Г  Г¤Г«Гї Г¤Г Г­Г­Г®Г© Г±ГҐГ¬ГјГЁ!')
                         local bs = raknetNewBitStream()
                         raknetEmulPacketReceiveBitStream(32,bs)
                         raknetDeleteBitStream(bs)
@@ -274,29 +274,29 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
 		end
 	end
 
-    if title == "{FFFFFF}Информация | {ae433d}Зеленая зона" and antizz.v then
+    if title == "{FFFFFF}Г€Г­ГґГ®Г°Г¬Г Г¶ГЁГї | {ae433d}Г‡ГҐГ«ГҐГ­Г Гї Г§Г®Г­Г " and antizz.v then
         sampSendDialogResponse(dialogId, 1, _, _)
         return false
     end
 
-    if title:find("Игровой лаунчер | ") then
+    if title:find("Г€ГЈГ°Г®ГўГ®Г© Г«Г ГіГ­Г·ГҐГ° | ") then
         sampSendDialogResponse(dialogId, 1, _, _)
         return false
     end
 end
 
 function sampev.onServerMessage(color, text)
-	if enabled.v and text:find('Вы ввели неверный пароль! ') then
+	if enabled.v and text:find('Г‚Г» ГўГўГҐГ«ГЁ Г­ГҐГўГҐГ°Г­Г»Г© ГЇГ Г°Г®Г«Гј! ') then
         enabled.v = false
         click = false
 	end
 
 	if not server:find('Evolve%-Rp%.Ru') then return true end
-    if text:find('Вам необходимо состоять в семье') and checkfpanel then
+    if text:find('Г‚Г Г¬ Г­ГҐГ®ГЎГµГ®Г¤ГЁГ¬Г® Г±Г®Г±ГІГ®ГїГІГј Гў Г±ГҐГ¬ГјГҐ') and checkfpanel then
         thisScript():unload()
 	end
 	local nick = sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(playerPed)))
-	if text:find('%w+_%w+ передал реликвию семьи ' ..nick) then
+	if text:find('%w+_%w+ ГЇГҐГ°ГҐГ¤Г Г« Г°ГҐГ«ГЁГЄГўГЁГѕ Г±ГҐГ¬ГјГЁ ' ..nick) then
 		lua_thread.create(famcheck)
 	end
 end
