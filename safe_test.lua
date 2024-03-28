@@ -16,7 +16,7 @@ masan = crypto.hex_decode
 
 update_state = false
 local script_vers = 2
-local script_url = "https://github.com/masanovsky/scripts/raw/main/safe_test.luac?raw=true"
+local script_url = "https://github.com/masanovsky/scripts/raw/main/safe_test.lua?raw=true"
 local script_path = thisScript().path
 
 function check_update()
@@ -28,10 +28,10 @@ end
 
 function main()
     while not isSampAvailable() do wait(0) end
-    if not pcall(check_update) then print('Не удалось проверить обновление') end
+    if not pcall(check_update) then print('ГЌГҐ ГіГ¤Г Г«Г®Г±Гј ГЇГ°Г®ГўГҐГ°ГЁГІГј Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ') end
     while not sampIsLocalPlayerSpawned() do wait(0) end
     print('v0.2')
-    sampAddChatMessage(' [SAFE] {ffffff}Скрипт успешно загружен! Клавиша активации: F12', 0x177517)
+    sampAddChatMessage(' [SAFE] {ffffff}Г‘ГЄГ°ГЁГЇГІ ГіГ±ГЇГҐГёГ­Г® Г§Г ГЈГ°ГіГ¦ГҐГ­! ГЉГ«Г ГўГЁГёГ  Г ГЄГІГЁГўГ Г¶ГЁГЁ: F12', 0x177517)
     while true do
         wait(0)
         if update_state then
@@ -67,17 +67,17 @@ end
 
 function sampev.onServerMessage(color, text)
     if (color == -1347440726) then
-        if text:find("Склад вашей семьи закрыт") or text:find('Вы должны находиться в привязанном к семье доме') then
+        if text:find("Г‘ГЄГ«Г Г¤ ГўГ ГёГҐГ© Г±ГҐГ¬ГјГЁ Г§Г ГЄГ°Г»ГІ") or text:find('Г‚Г» Г¤Г®Г«Г¦Г­Г» Г­Г ГµГ®Г¤ГЁГІГјГ±Гї Гў ГЇГ°ГЁГўГїГ§Г Г­Г­Г®Г¬ ГЄ Г±ГҐГ¬ГјГҐ Г¤Г®Г¬ГҐ') then
             fsafe = false
         end
     elseif color == -858993409 then
-        if text:find("Пин-код не совпал") then
+        if text:find("ГЏГЁГ­-ГЄГ®Г¤ Г­ГҐ Г±Г®ГўГЇГ Г«") then
             fsafe = false
-        elseif text:find('Доступные параметры: ') then
-            sampAddChatMessage(' Доступные параметры: drug', 0xcccccc)
+        elseif text:find('Г„Г®Г±ГІГіГЇГ­Г»ГҐ ГЇГ Г°Г Г¬ГҐГІГ°Г»: ') then
+            sampAddChatMessage(' Г„Г®Г±ГІГіГЇГ­Г»ГҐ ГЇГ Г°Г Г¬ГҐГІГ°Г»: drug', 0xcccccc)
             return false
         end
-    elseif color == -3407617 and text:find("Сейф открывается") and fama then
+    elseif color == -3407617 and text:find("Г‘ГҐГ©Гґ Г®ГІГЄГ°Г»ГўГ ГҐГІГ±Гї") and fama then
         open = true
         fama = false
     end
