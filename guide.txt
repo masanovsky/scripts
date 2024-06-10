@@ -46,8 +46,6 @@ Rim_Pagans
 Testosteron_Vaillant
 Rim_Mongols
 Manyuda_Masanovskiy
-Riviyslove_Fantom
-Nikko_Nakano
 Leo_Coopher
 Mindcontrol_Elizalde
 Weqa_Morganx
@@ -56,7 +54,6 @@ Skotch_Masanovskiy
 Oleja_Masan
 Rim_Masanovskiy
 Rusik_Krasnodarsky
-Checker_Masanovskiy
 Liberty_Marlboro
 Leonardo_NeDicaprio
 Vanekbozz_Schwamm
