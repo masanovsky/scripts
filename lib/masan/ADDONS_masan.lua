@@ -105,10 +105,9 @@ M.MaterialButton = function(str_id, size, duration)
 		duration = { 0.4, 0.2, 0.4 }
 	end  
 	local cols = {
-		default = imgui.ImVec4(imgui.GetStyle().Colors[imgui.Col.Button]),
-		hovered = imgui.ImVec4(imgui.GetStyle().Colors[imgui.Col.ButtonHovered]),
-		active  = imgui.ImVec4(imgui.GetStyle().Colors[imgui.Col.ButtonActive]),
-		window  = imgui.ImVec4(imgui.GetStyle().Colors[imgui.Col.WindowBg])
+		idle = imgui.ImVec4(0.34, 0.34, 0.34, 1.00),
+		hovr = imgui.GetStyle().Colors[imgui.Col.Text],
+		slct = imgui.ImVec4(20 / 255, 140 / 255, 77 / 255, 1.00)
 	}
 
 	local result = false
@@ -549,12 +548,25 @@ M.ToggleButton = function(str_id, value)
     local ts = imgui.CalcTextSize(title)
 
     local style = imgui.GetStyle()
-    local cols = {
-        enable  = style.Colors[imgui.Col.ButtonActive],
-        disable = style.Colors[imgui.Col.TextDisabled],
-        bg      = style.Colors[imgui.Col.FrameBg],
-        border  = style.Colors[imgui.Col.Border],
-    }
+    local function mixColor(a, b, t)
+    return imgui.ImVec4(
+			a.x + (b.x - a.x) * t,
+			a.y + (b.y - a.y) * t,
+			a.z + (b.z - a.z) * t,
+			a.w + (b.w - a.w) * t
+		)
+	end
+
+	local cols = {
+		enable  = mixColor(style.Colors[imgui.Col.SliderGrabActive], style.Colors[imgui.Col.FrameBg], 0.10),
+		disable = mixColor(style.Colors[imgui.Col.ButtonActive], style.Colors[imgui.Col.FrameBg], 0.45),
+
+		bg      = style.Colors[imgui.Col.FrameBg],
+		border  = style.Colors[imgui.Col.Border],
+
+		bg_on     = style.Colors[imgui.Col.FrameBg],
+		border_on = mixColor(style.Colors[imgui.Col.Border], style.Colors[imgui.Col.SliderGrabActive], 0.18),
+	}
 
     local radius = 6
     local o = { x = 4, y = p.y + (size.y / 2) }
@@ -592,9 +604,13 @@ M.ToggleButton = function(str_id, value)
         pool.pos   = value[0] and B or A
     end
 
-    local rounding = 5
-    DL:AddRectFilled(p, imgui.ImVec2(p.x + size.x, p.y + size.y), ToU32(cols.bg), rounding)
-    DL:AddRect(p, imgui.ImVec2(p.x + size.x, p.y + size.y), ToU32(cols.border), rounding, 15, 1)
+	local rounding = 5
+
+	local bg_col = value[0] and cols.bg_on or cols.bg
+	local border_col = value[0] and cols.border_on or cols.border
+
+	DL:AddRectFilled(p, imgui.ImVec2(p.x + size.x, p.y + size.y), ToU32(bg_col), rounding)
+	DL:AddRect(p, imgui.ImVec2(p.x + size.x, p.y + size.y), ToU32(border_col), rounding, 15, 1)
 
     local knob_min = imgui.ImVec2(pool.pos.x - radius, pool.pos.y - radius)
     local knob_max = imgui.ImVec2(pool.pos.x + radius, pool.pos.y + radius)
@@ -715,30 +731,58 @@ end
 M.PageButton = function(bool, icon, name, but_wide)
 	but_wide = but_wide or 170
 	local duration = 0.25
-	local DL = imgui.GetForegroundDrawList()
+	local DL = imgui.GetWindowDrawList()
+
+	-- ÷вет подсветки вкладки как у активного слайдера
+	local tab_col = imgui.GetStyle().Colors[imgui.Col.SliderGrabActive]
+
+	-- —ила градиента слева.
+	-- —права он всегда будет 0.00, то есть полностью невидимый.
+	local ACTIVE_GRADIENT_ALPHA = 0.36
+	local HOVER_GRADIENT_ALPHA  = 0.15
+
+	-- ÷вет текста вкладок
+	local ACTIVE_TEXT_COL   = imgui.ImVec4(1.00, 1.00, 1.00, 1.00)
+	local HOVER_TEXT_COL    = imgui.ImVec4(0.78, 0.78, 0.78, 1.00)
+	local INACTIVE_TEXT_COL = imgui.ImVec4(0.42, 0.42, 0.42, 1.00)
+
+	local pageShiftX = 8
+	local oldCursorX = imgui.GetCursorPosX()
+	imgui.SetCursorPosX(oldCursorX - pageShiftX)
+
 	local p1 = imgui.GetCursorScreenPos()
 	local p2 = imgui.GetCursorPos()
-	local col = imgui.GetStyle().Colors[imgui.Col.ButtonActive]
 
 	if not AI_PAGE[name] then
-		AI_PAGE[name] = { clock = nil, hover_t = 0.0, last = os.clock() }
+		AI_PAGE[name] = {
+			clock = nil,
+			hover_t = 0.0,
+			last = os.clock()
+		}
 	end
+
 	local pool = AI_PAGE[name]
 
-	imgui.PushStyleColor(imgui.Col.Button, imgui.ImVec4(0,0,0,0))
-	imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0,0,0,0))
-	imgui.PushStyleColor(imgui.Col.ButtonActive, imgui.ImVec4(0,0,0,0))
-	local result = imgui.InvisibleButton(name, imgui.ImVec2(but_wide, 35))
+	imgui.PushStyleColor(imgui.Col.Button, imgui.ImVec4(0, 0, 0, 0))
+	imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0, 0, 0, 0))
+	imgui.PushStyleColor(imgui.Col.ButtonActive, imgui.ImVec4(0, 0, 0, 0))
+
+	local result = imgui.InvisibleButton(name, imgui.ImVec2(but_wide, 40))
 	local hovered = imgui.IsItemHovered()
+
 	imgui.PopStyleColor(3)
 
-	if result and not bool then pool.clock = os.clock() end
+	if result and not bool then
+		pool.clock = os.clock()
+	end
 
 	do
 		local now = os.clock()
 		local dt = now - (pool.last or now)
 		pool.last = now
+
 		local speed = dt / duration
+
 		if hovered and not bool then
 			pool.hover_t = math.min(1.0, (pool.hover_t or 0.0) + speed)
 		else
@@ -746,53 +790,148 @@ M.PageButton = function(bool, icon, name, but_wide)
 		end
 	end
 
+	DL:PushClipRectFullScreen()
+
 	if bool then
 		if pool.clock and (os.clock() - pool.clock) < duration then
 			local t = (os.clock() - pool.clock) / duration
 			if t > 1.0 then t = 1.0 end
+
 			local w = but_wide * t
 
-			DL:AddRectFilled(imgui.ImVec2(p1.x, p1.y), imgui.ImVec2(p1.x + 5, p1.y + 35), ToU32(col))
+			-- Ћева€ €рка€ полоска
+			DL:AddRectFilled(
+				imgui.ImVec2(p1.x, p1.y),
+				imgui.ImVec2(p1.x + 3, p1.y + 40),
+				ToU32(tab_col)
+			)
 
-			DL:PushClipRect(imgui.ImVec2(p1.x, p1.y), imgui.ImVec2(p1.x + w, p1.y + 35), true)
-			local left_col = ToU32(imgui.ImVec4(col.x, col.y, col.z, 0.6))
-			local right_col = ToU32(imgui.ImVec4(col.x, col.y, col.z, 0.0))
-			DL:AddRectFilledMultiColor(imgui.ImVec2(p1.x, p1.y), imgui.ImVec2(p1.x + but_wide, p1.y + 35), left_col, right_col, right_col, left_col)
+			-- јнимированный градиент.
+			-- —лева €ркий, справа полностью прозрачный.
+			DL:PushClipRect(
+				imgui.ImVec2(p1.x, p1.y),
+				imgui.ImVec2(p1.x + w, p1.y + 40),
+				true
+			)
+
+			local left_col = ToU32(imgui.ImVec4(
+				tab_col.x,
+				tab_col.y,
+				tab_col.z,
+				ACTIVE_GRADIENT_ALPHA * t
+			))
+
+			local right_col = ToU32(imgui.ImVec4(
+				tab_col.x,
+				tab_col.y,
+				tab_col.z,
+				0.00
+			))
+
+			DL:AddRectFilledMultiColor(
+				imgui.ImVec2(p1.x, p1.y),
+				imgui.ImVec2(p1.x + but_wide * 0.8, p1.y + 40),
+				left_col,
+				right_col,
+				right_col,
+				left_col
+			)
+
 			DL:PopClipRect()
 		else
-			DL:AddRectFilled(imgui.ImVec2(p1.x, p1.y), imgui.ImVec2(p1.x + 5, p1.y + 35), ToU32(col))
-			local left_col = ToU32(imgui.ImVec4(col.x, col.y, col.z, 0.6))
-			local right_col = ToU32(imgui.ImVec4(col.x, col.y, col.z, 0.0))
-			DL:AddRectFilledMultiColor(imgui.ImVec2(p1.x, p1.y), imgui.ImVec2(p1.x + but_wide, p1.y + 35), left_col, right_col, right_col, left_col)
+			-- Ћева€ €рка€ полоска
+			DL:AddRectFilled(
+				imgui.ImVec2(p1.x, p1.y),
+				imgui.ImVec2(p1.x + 3, p1.y + 40),
+				ToU32(tab_col)
+			)
+
+			-- ѕосто€нный градиент активной вкладки.
+			-- ¬ажно: справа alpha = 0.00.
+			local left_col = ToU32(imgui.ImVec4(
+				tab_col.x,
+				tab_col.y,
+				tab_col.z,
+				ACTIVE_GRADIENT_ALPHA
+			))
+
+			local right_col = ToU32(imgui.ImVec4(
+				tab_col.x,
+				tab_col.y,
+				tab_col.z,
+				0.00
+			))
+
+			DL:AddRectFilledMultiColor(
+				imgui.ImVec2(p1.x, p1.y),
+				imgui.ImVec2(p1.x + but_wide * 0.8, p1.y + 40),
+				left_col,
+				right_col,
+				right_col,
+				left_col
+			)
 		end
 	else
 		local t = pool.hover_t or 0.0
+
 		if t > 0.001 then
-			DL:PushClipRect(imgui.ImVec2(p1.x, p1.y), imgui.ImVec2(p1.x + but_wide, p1.y + 35), true)
-			local left_col = ToU32(imgui.ImVec4(col.x, col.y, col.z, 1.0 * t))
-			local right_col = ToU32(imgui.ImVec4(col.x, col.y, col.z, 0.0))
-			DL:AddRectFilledMultiColor(imgui.ImVec2(p1.x, p1.y), imgui.ImVec2(p1.x + but_wide, p1.y + 35), left_col, right_col, right_col, left_col)
+			DL:PushClipRect(
+				imgui.ImVec2(p1.x, p1.y),
+				imgui.ImVec2(p1.x + but_wide * 0.8, p1.y + 40),
+				true
+			)
+
+			-- Hover тоже €ркий слева, но слабее активной вкладки.
+			-- —права полностью прозрачный.
+			local left_col = ToU32(imgui.ImVec4(
+				tab_col.x,
+				tab_col.y,
+				tab_col.z,
+				HOVER_GRADIENT_ALPHA * t
+			))
+
+			local right_col = ToU32(imgui.ImVec4(
+				tab_col.x,
+				tab_col.y,
+				tab_col.z,
+				0.00
+			))
+
+			DL:AddRectFilledMultiColor(
+				imgui.ImVec2(p1.x, p1.y),
+				imgui.ImVec2(p1.x + but_wide * 0.8, p1.y + 40),
+				left_col,
+				right_col,
+				right_col,
+				left_col
+			)
+
 			DL:PopClipRect()
 		end
 	end
 
-	imgui.SameLine(10); imgui.SetCursorPosY(p2.y + 8)
+	DL:PopClipRect()
 
-	local hovered = imgui.IsItemHovered()
-	local t = (AI_PAGE[name] and AI_PAGE[name].hover_t) or 0.0
+	imgui.SameLine(10)
+	imgui.SetCursorPosY(p2.y + 12)
 
-	local on = bool or (t > 0.05)
+	local t = pool.hover_t or 0.0
+	local text_col
 
-	if on then
-		imgui.TextColored(imgui.ImVec4(0.92, 0.92, 0.92, 1.00), (' '):rep(3) .. icon)
-		imgui.SameLine(60)
-		imgui.TextColored(imgui.ImVec4(0.92, 0.92, 0.92, 1.00), name)
+	if bool then
+		text_col = ACTIVE_TEXT_COL
+	elseif t > 0.05 then
+		text_col = HOVER_TEXT_COL
 	else
-		imgui.TextColored(imgui.ImVec4(0.60, 0.60, 0.60, 1.00), (' '):rep(3) .. icon)
-		imgui.SameLine(60)
-		imgui.TextColored(imgui.ImVec4(0.60, 0.60, 0.60, 1.00), name)
+		text_col = INACTIVE_TEXT_COL
 	end
+
+	imgui.TextColored(text_col, (' '):rep(3) .. icon)
+	imgui.SameLine(50)
+	imgui.TextColored(text_col, name)
+
 	imgui.SetCursorPosY(p2.y + 40)
+
 	return result
 end
 
@@ -834,10 +973,10 @@ M.HeaderButton = function(bool, str_id)
 	local label = string.gsub(str_id, "##.*$", "")
 	local duration = { 0.5, 0.3 }
 	local cols = {
-        idle = imgui.GetStyle().Colors[imgui.Col.TextDisabled],
-        hovr = imgui.GetStyle().Colors[imgui.Col.Text],
-        slct = imgui.GetStyle().Colors[imgui.Col.ButtonActive]
-    }
+		idle = imgui.ImVec4(0.42, 0.42, 0.42, 1.00),
+		hovr = imgui.GetStyle().Colors[imgui.Col.Text],
+		slct = imgui.ImVec4(20 / 255, 140 / 255, 77 / 255, 1.00) -- #148c4d
+	}
 
  	if not AI_HEADERBUT[str_id] then
         AI_HEADERBUT[str_id] = {
@@ -862,9 +1001,10 @@ M.HeaderButton = function(bool, str_id)
 		local hovered = isPlaceHovered(p, imgui.ImVec2(p.x + s.x, p.y + s.y))
 		local clicked = imgui.IsItemClicked()
 		
-		-- Listeners
-		if pool.h.state ~= hovered and not bool then
-			pool.h.state = hovered
+		local h_state = bool or hovered
+
+		if pool.h.state ~= h_state then
+			pool.h.state = h_state
 			pool.h.clock = os.clock()
 		end
 		
@@ -909,6 +1049,228 @@ M.HeaderButton = function(bool, str_id)
 
 	imgui.EndGroup()
 	return result
+end
+
+local active_slider_id, alt_active_slider_id = nil, nil
+
+M.CustomSlider = function(str_id, value, min, max, sformat, width)
+    width = width or 100
+
+    local DL = imgui.GetWindowDrawList()
+    local p = imgui.GetCursorScreenPos()
+    local io = imgui.GetIO()
+    local style = imgui.GetStyle()
+
+    UI_CUSTOM_SLIDER = UI_CUSTOM_SLIDER or {}
+    UI_CUSTOM_SLIDER[str_id] = UI_CUSTOM_SLIDER[str_id] or {
+        active = false,
+        hovered = false,
+        start = 0,
+        smooth_value = value[0]
+    }
+
+    local function clamp(v, a, b)
+        if v < a then return a end
+        if v > b then return b end
+        return v
+    end
+
+    imgui.InvisibleButton(str_id, imgui.ImVec2(width, 20))
+
+    local isActive = imgui.IsItemActive()
+    local isHovered = imgui.IsItemHovered()
+
+    UI_CUSTOM_SLIDER[str_id].active = isActive
+    UI_CUSTOM_SLIDER[str_id].hovered = isHovered
+
+    if isActive then
+        if io.KeyAlt then
+            alt_active_slider_id = str_id
+        else
+            active_slider_id = str_id
+        end
+    else
+        if active_slider_id == str_id then
+            active_slider_id = nil
+        end
+        if alt_active_slider_id == str_id and not io.KeyAlt then
+            alt_active_slider_id = nil
+        end
+    end
+
+    local isInteger = (math.floor(min) == min) and (math.floor(max) == max)
+    local range = max - min
+    local step = 0
+
+    if range ~= 0 then
+        step = range / (width * (isInteger and 10 or 80))
+    end
+
+    local isAltPressed = io.KeyAlt
+    local mouseDown = imgui.IsMouseDown(0)
+
+    if ((str_id == active_slider_id and not isAltPressed) or
+        (str_id == alt_active_slider_id and isAltPressed)) and mouseDown then
+
+        local mousePos = imgui.GetMousePos()
+        local delta = io.MouseDelta.x
+
+        if isAltPressed then
+            UI_CUSTOM_SLIDER[str_id].smooth_value = UI_CUSTOM_SLIDER[str_id].smooth_value + delta * step
+            UI_CUSTOM_SLIDER[str_id].smooth_value = clamp(UI_CUSTOM_SLIDER[str_id].smooth_value, min, max)
+
+            if isInteger then
+                value[0] = math.floor(UI_CUSTOM_SLIDER[str_id].smooth_value + 0.5)
+            else
+                value[0] = UI_CUSTOM_SLIDER[str_id].smooth_value
+            end
+        else
+            local mouseX = clamp(mousePos.x - p.x, 0, width)
+
+			if range ~= 0 then
+				UI_CUSTOM_SLIDER[str_id].smooth_value = min + range * mouseX / width
+				UI_CUSTOM_SLIDER[str_id].smooth_value = clamp(UI_CUSTOM_SLIDER[str_id].smooth_value, min, max)
+
+				if isInteger then
+					value[0] = math.floor(UI_CUSTOM_SLIDER[str_id].smooth_value + 0.5)
+				else
+					value[0] = UI_CUSTOM_SLIDER[str_id].smooth_value
+				end
+			end
+        end
+    else
+        if math.abs(UI_CUSTOM_SLIDER[str_id].smooth_value - value[0]) > 0.001 then
+            UI_CUSTOM_SLIDER[str_id].smooth_value =
+                UI_CUSTOM_SLIDER[str_id].smooth_value + (value[0] - UI_CUSTOM_SLIDER[str_id].smooth_value) * 0.3
+        else
+            UI_CUSTOM_SLIDER[str_id].smooth_value = value[0]
+        end
+    end
+
+    local circleRadius = 8
+    local trackY1 = p.y + 7
+    local trackY2 = p.y + 14
+    local centerY = p.y + 10
+
+    local normalized = 0
+    if range ~= 0 then
+        normalized = clamp((UI_CUSTOM_SLIDER[str_id].smooth_value - min) / range, 0, 1)
+    end
+
+    local posCircleX = p.x + circleRadius + (width - circleRadius * 2) * normalized
+
+    local knobColor = style.Colors[imgui.Col.SliderGrab]
+    if isHovered or isActive then
+        knobColor = style.Colors[imgui.Col.SliderGrabActive]
+    end
+
+    local knobColorU32 = imgui.GetColorU32Vec4(knobColor)
+    local bgColorU32 = imgui.GetColorU32Vec4(style.Colors[imgui.Col.FrameBg])
+    local textColorU32 = imgui.GetColorU32Vec4(style.Colors[imgui.Col.Text])
+
+    if (str_id == active_slider_id and isAltPressed) or (str_id == alt_active_slider_id and isAltPressed) then
+        DL:AddRectFilled(
+            imgui.ImVec2(p.x, trackY1),
+            imgui.ImVec2(p.x + width, trackY2),
+            bgColorU32
+        )
+
+        DL:AddRectFilled(
+            imgui.ImVec2(p.x, trackY1),
+            imgui.ImVec2(posCircleX, trackY2),
+            knobColorU32
+        )
+
+        local arrowSize = 10
+        local halfArrowSize = 5
+
+        DL:AddTriangleFilled(
+            imgui.ImVec2(p.x, centerY - halfArrowSize),
+            imgui.ImVec2(p.x + arrowSize, centerY),
+            imgui.ImVec2(p.x, centerY + halfArrowSize),
+            knobColorU32
+        )
+
+        DL:AddTriangleFilled(
+            imgui.ImVec2(p.x + width, centerY - halfArrowSize),
+            imgui.ImVec2(p.x + width - arrowSize, centerY),
+            imgui.ImVec2(p.x + width, centerY + halfArrowSize),
+            knobColorU32
+        )
+    else
+        DL:AddRectFilled(
+            imgui.ImVec2(p.x, trackY1),
+            imgui.ImVec2(posCircleX, trackY2),
+            knobColorU32
+        )
+
+        DL:AddRectFilled(
+            imgui.ImVec2(posCircleX, trackY1),
+            imgui.ImVec2(p.x + width, trackY2),
+            bgColorU32
+        )
+
+        DL:AddCircleFilled(
+            imgui.ImVec2(posCircleX, centerY),
+            circleRadius,
+            knobColorU32,
+            32
+        )
+    end
+
+    DL:AddText(
+        imgui.ImVec2(p.x + width + 10, p.y),
+        textColorU32,
+        string.format(sformat, value[0])
+    )
+
+    return isActive
+end
+
+M.BeginTitleChild = function(str_id, size, titleColor, offset, borderColor)
+    local style = imgui.GetStyle()
+
+    borderColor = borderColor or style.Colors[imgui.Col.Border]
+    titleColor  = titleColor  or style.Colors[imgui.Col.Text]
+    offset = offset or 30
+
+    local DL = imgui.GetWindowDrawList()
+    local posS = imgui.GetCursorScreenPos()
+    local rounding = style.ChildRounding
+    local title = str_id:gsub('##.+$', '')
+    local sizeT = imgui.CalcTextSize(title)
+    local bgColor = imgui.ColorConvertFloat4ToU32(style.Colors[imgui.Col.WindowBg])
+
+    imgui.PushStyleColor(imgui.Col.ChildBg, imgui.ImVec4(0, 0, 0, 0))
+    imgui.PushStyleColor(imgui.Col.Border, imgui.ImVec4(0, 0, 0, 0))
+    imgui.BeginChild(str_id, size, true)
+    imgui.Spacing()
+    imgui.PopStyleColor(2)
+
+    size.x = size.x == -1.0 and imgui.GetWindowWidth() or size.x
+    size.y = size.y == -1.0 and imgui.GetWindowHeight() or size.y
+
+    DL:AddRect(
+        posS,
+        imgui.ImVec2(posS.x + size.x, posS.y + size.y),
+        imgui.ColorConvertFloat4ToU32(borderColor),
+        rounding,
+        nil,
+        1
+    )
+
+    DL:AddLine(
+        imgui.ImVec2(posS.x + offset - 3, posS.y),
+        imgui.ImVec2(posS.x + offset + sizeT.x + 3, posS.y),
+        bgColor,
+        3
+    )
+
+    DL:AddText(
+        imgui.ImVec2(posS.x + offset, posS.y - (sizeT.y / 2)),
+        imgui.ColorConvertFloat4ToU32(titleColor),
+        title
+    )
 end
 
 return M
