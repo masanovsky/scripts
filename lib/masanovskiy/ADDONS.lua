@@ -1,28 +1,19 @@
 local imgui = require 'mimgui'
 
--- \\ ИНФОРМАЦИЯ:
+
 local M = {
     version = 1
 }
-setmetatable(M, {
-    __index = function(self, index)
-        if index == '_AUTHOR' then
-            return 'Cosmo'
-        elseif index == '_VERSION' then
-            return '1.0'
-        end
-    end
-})
 
--- \\ Пулы:
+
 local AI_TOGGLE = {}
 local AI_HEADERBUT = {}
 local AI_PAGE = {}
 
--- \\ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ:
+
 local ToU32 = imgui.ColorConvertFloat4ToU32
 
-local function limit(v, min, max) -- Ограничение динамического значения
+local function limit(v, min, max)
     min = min or 0.0
     max = max or 1.0
     return v < min and min or (v > max and max or v)
@@ -63,7 +54,7 @@ local function bringFloatTo(from, to, start_time, duration)
     return (timer > duration) and to or from, false
 end
 
-local function isPlaceHovered(a, b) -- Проверка находится ли курсор в указанной области
+local function isPlaceHovered(a, b)
     local m = imgui.GetMousePos()
     if m.x >= a.x and m.y >= a.y then
         if m.x <= b.x and m.y <= b.y then
@@ -73,12 +64,12 @@ local function isPlaceHovered(a, b) -- Проверка находится ли курсор в указанной 
     return false
 end
 
-local function set_alpha(color, alpha) -- Получение цвета с определённой прозрачностью
+local function set_alpha(color, alpha)
     alpha = alpha and limit(alpha, 0.0, 1.0) or 1.0
     return imgui.ImVec4(color.x, color.y, color.z, alpha)
 end
 
--- \\ ЭЛЕМЕНТЫ:
+
 M.ToggleButton = function(str_id, value)
     local duration = 0.3
     local p = imgui.GetCursorScreenPos()
@@ -165,15 +156,15 @@ M.PageButton = function(bool, icon, name, but_wide)
     local duration = 0.25
     local DL = imgui.GetWindowDrawList()
 
-    -- Цвет подсветки вкладки как у активного слайдера
+
     local tab_col = imgui.GetStyle().Colors[imgui.Col.SliderGrabActive]
 
-    -- Сила градиента слева.
-    -- Справа он всегда будет 0.00, то есть полностью невидимый.
+
+
     local ACTIVE_GRADIENT_ALPHA = 0.36
     local HOVER_GRADIENT_ALPHA  = 0.15
 
-    -- Цвет текста вкладок
+
     local ACTIVE_TEXT_COL   = imgui.ImVec4(1.00, 1.00, 1.00, 1.00)
     local HOVER_TEXT_COL    = imgui.ImVec4(0.78, 0.78, 0.78, 1.00)
     local INACTIVE_TEXT_COL = imgui.ImVec4(0.42, 0.42, 0.42, 1.00)
@@ -231,15 +222,15 @@ M.PageButton = function(bool, icon, name, but_wide)
 
             local w = but_wide * t
 
-            -- Левая яркая полоска
+
             DL:AddRectFilled(
                 imgui.ImVec2(p1.x, p1.y),
                 imgui.ImVec2(p1.x + 3, p1.y + 40),
                 ToU32(tab_col)
             )
 
-            -- Анимированный градиент.
-            -- Слева яркий, справа полностью прозрачный.
+
+
             DL:PushClipRect(
                 imgui.ImVec2(p1.x, p1.y),
                 imgui.ImVec2(p1.x + w, p1.y + 40),
@@ -271,15 +262,15 @@ M.PageButton = function(bool, icon, name, but_wide)
 
             DL:PopClipRect()
         else
-            -- Левая яркая полоска
+
             DL:AddRectFilled(
                 imgui.ImVec2(p1.x, p1.y),
                 imgui.ImVec2(p1.x + 3, p1.y + 40),
                 ToU32(tab_col)
             )
 
-            -- Постоянный градиент активной вкладки.
-            -- Важно: справа alpha = 0.00.
+
+
             local left_col = ToU32(imgui.ImVec4(
                 tab_col.x,
                 tab_col.y,
@@ -313,8 +304,8 @@ M.PageButton = function(bool, icon, name, but_wide)
                 true
             )
 
-            -- Hover тоже яркий слева, но слабее активной вкладки.
-            -- Справа полностью прозрачный.
+
+
             local left_col = ToU32(imgui.ImVec4(
                 tab_col.x,
                 tab_col.y,
@@ -378,7 +369,7 @@ M.HeaderButton = function(bool, str_id)
     local cols = {
         idle = imgui.ImVec4(0.42, 0.42, 0.42, 1.00),
         hovr = imgui.ImVec4(0.78, 0.78, 0.78, 1.00),
-        slct = imgui.ImVec4(20 / 255, 140 / 255, 77 / 255, 1.00) -- #148c4d
+        slct = imgui.ImVec4(20 / 255, 140 / 255, 77 / 255, 1.00)
     }
 
      if not AI_HEADERBUT[str_id] then
@@ -398,7 +389,7 @@ M.HeaderButton = function(bool, str_id)
         local pos = imgui.GetCursorPos()
         local p = imgui.GetCursorScreenPos()
         
-        -- Render Text
+
         imgui.TextColored(pool.color, label)
         local s = imgui.GetItemRectSize()
         local hovered = isPlaceHovered(p, imgui.ImVec2(p.x + s.x, p.y + s.y))
