@@ -74,34 +74,33 @@ M.ToggleButton = function(str_id, value)
     local duration = 0.3
     local p = imgui.GetCursorScreenPos()
     local DL = imgui.GetWindowDrawList()
-    local size = imgui.ImVec2(40, 20)
+    local style = imgui.GetStyle()
+
+    local size = imgui.ImVec2(40, 22)
 
     local title = str_id:gsub('##.*$', '')
     local ts = imgui.CalcTextSize(title)
 
-    local style = imgui.GetStyle()
-    local function mixColor(a, b, t)
-    return imgui.ImVec4(
-            a.x + (b.x - a.x) * t,
-            a.y + (b.y - a.y) * t,
-            a.z + (b.z - a.z) * t,
-            a.w + (b.w - a.w) * t
-        )
-    end
-
     local cols = {
-        enable  = mixColor(style.Colors[imgui.Col.SliderGrabActive], style.Colors[imgui.Col.FrameBg], 0.10),
-        disable = mixColor(style.Colors[imgui.Col.ButtonActive], style.Colors[imgui.Col.FrameBg], 0.45),
+        -- точка
+        enable = imgui.ImVec4(0.82, 0.92, 0.86, 1.00), -- ON точка
+        disable = imgui.ImVec4(0.58, 0.72, 0.64, 1.00), -- OFF точка, заметнее
 
-        bg      = style.Colors[imgui.Col.FrameBg],
-        border  = style.Colors[imgui.Col.Border],
+        -- фон OFF, темный, но не сливается
+        bg      = imgui.ImVec4(0.045, 0.135, 0.105, 1.00),
+        border  = imgui.ImVec4(0.105, 0.300, 0.210, 0.95),
 
-        bg_on     = style.Colors[imgui.Col.FrameBg],
-        border_on = mixColor(style.Colors[imgui.Col.Border], style.Colors[imgui.Col.SliderGrabActive], 0.18),
+        -- фон ON, мягкий зеленый
+        bg_on     = imgui.ImVec4(0.045, 0.200, 0.130, 1.00),
+        border_on = imgui.ImVec4(0.090, 0.420, 0.260, 0.95),
     }
 
     local radius = 6
-    local o = { x = 4, y = p.y + (size.y / 2) }
+    local o = {
+        x = 4,
+        y = p.y + size.y / 2
+    }
+
     local A = imgui.ImVec2(p.x + radius + o.x, o.y)
     local B = imgui.ImVec2(p.x + size.x - radius - o.x, o.y)
 
@@ -109,44 +108,83 @@ M.ToggleButton = function(str_id, value)
         AI_TOGGLE[str_id] = {
             clock = nil,
             color = value[0] and cols.enable or cols.disable,
-            pos   = value[0] and B or A
+            pos = value[0] and B or A
         }
     end
+
     local pool = AI_TOGGLE[str_id]
 
     imgui.BeginGroup()
         local pos = imgui.GetCursorPos()
-        local result = imgui.InvisibleButton(str_id, imgui.ImVec2(size.x, size.y))
+
+        local result = imgui.InvisibleButton(str_id, size)
+
         if result then
             value[0] = not value[0]
             pool.clock = os.clock()
         end
+
         if #title > 0 then
             local spc = style.ItemSpacing
-            imgui.SetCursorPos(imgui.ImVec2(pos.x + size.x + spc.x, pos.y + ((size.y - ts.y) / 2)))
+
+            imgui.SetCursorPos(imgui.ImVec2(
+                pos.x + size.x + spc.x,
+                pos.y + ((size.y - ts.y) / 2)
+            ))
+
             imgui.Text(title)
         end
     imgui.EndGroup()
 
     if pool.clock and os.clock() - pool.clock <= duration then
-        pool.color = bringVec4To(imgui.ImVec4(pool.color), value[0] and cols.enable or cols.disable, pool.clock, duration)
-        pool.pos   = bringVec2To(imgui.ImVec2(pool.pos),   value[0] and B or A,                   pool.clock, duration)
+        pool.color = bringVec4To(
+            imgui.ImVec4(pool.color),
+            value[0] and cols.enable or cols.disable,
+            pool.clock,
+            duration
+        )
+
+        pool.pos = bringVec2To(
+            imgui.ImVec2(pool.pos),
+            value[0] and B or A,
+            pool.clock,
+            duration
+        )
     else
         pool.color = value[0] and cols.enable or cols.disable
-        pool.pos   = value[0] and B or A
+        pool.pos = value[0] and B or A
     end
-
-    local rounding = 5
 
     local bg_col = value[0] and cols.bg_on or cols.bg
     local border_col = value[0] and cols.border_on or cols.border
 
-    DL:AddRectFilled(p, imgui.ImVec2(p.x + size.x, p.y + size.y), ToU32(bg_col), rounding)
-    DL:AddRect(p, imgui.ImVec2(p.x + size.x, p.y + size.y), ToU32(border_col), rounding, 15, 1)
+    local rounding = 5
+
+    DL:AddRectFilled(
+        p,
+        imgui.ImVec2(p.x + size.x, p.y + size.y),
+        ToU32(bg_col),
+        rounding
+    )
+
+    DL:AddRect(
+        p,
+        imgui.ImVec2(p.x + size.x, p.y + size.y),
+        ToU32(border_col),
+        rounding,
+        15,
+        1
+    )
 
     local knob_min = imgui.ImVec2(pool.pos.x - radius, pool.pos.y - radius)
     local knob_max = imgui.ImVec2(pool.pos.x + radius, pool.pos.y + radius)
-    DL:AddRectFilled(knob_min, knob_max, ToU32(pool.color), 3)
+
+    DL:AddRectFilled(
+        knob_min,
+        knob_max,
+        ToU32(pool.color),
+        3
+    )
 
     return result
 end
@@ -161,8 +199,8 @@ M.PageButton = function(bool, icon, name, but_wide)
 
 
 
-    local ACTIVE_GRADIENT_ALPHA = 0.36
-    local HOVER_GRADIENT_ALPHA  = 0.15
+    local ACTIVE_GRADIENT_ALPHA = 0.48
+    local HOVER_GRADIENT_ALPHA  = 0.22
 
 
     local ACTIVE_TEXT_COL   = imgui.ImVec4(1.00, 1.00, 1.00, 1.00)
