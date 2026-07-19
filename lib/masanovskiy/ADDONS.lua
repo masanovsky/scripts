@@ -84,11 +84,11 @@ M.ToggleButton = function(str_id, value)
     local cols = {
         -- точка
         enable = imgui.ImVec4(0.82, 0.92, 0.86, 1.00), -- ON точка
-        disable = imgui.ImVec4(0.58, 0.72, 0.64, 1.00), -- OFF точка, заметнее
+        disable = imgui.ImVec4(0.36, 0.50, 0.42, 1.00), -- OFF точка, заметнее
 
         -- фон OFF, темный, но не сливается
-        bg      = imgui.ImVec4(0.045, 0.135, 0.105, 1.00),
-        border  = imgui.ImVec4(0.105, 0.300, 0.210, 0.95),
+        bg      = imgui.ImVec4(0.025, 0.085, 0.065, 1.00),
+        border  = imgui.ImVec4(0.060, 0.180, 0.130, 0.95),
 
         -- фон ON, мягкий зеленый
         bg_on     = imgui.ImVec4(0.045, 0.200, 0.130, 1.00),
